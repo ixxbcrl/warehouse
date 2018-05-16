@@ -26,6 +26,9 @@ public class Dimension {
     public int depth; // y
     public int height; // z
     public long volume;
+    public boolean canFit=true;
+    public boolean carryForward=false;
+    public boolean toRemove=false;
 
     protected final String name;
 
@@ -77,7 +80,6 @@ public class Dimension {
     }
 
     public boolean canHold3D(int w, int d, int h) {
-        System.out.println("wdh: " + width + " , " + depth + " , " + height + " , " + name);
         if(w <= width && h <= height && d <= depth) {
             return true;
         }

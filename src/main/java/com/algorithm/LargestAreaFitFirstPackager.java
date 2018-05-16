@@ -4,6 +4,8 @@ import com.packing.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
+
 import com.packing.Packager.Adapter;
 
 
@@ -59,9 +61,10 @@ public class LargestAreaFitFirstPackager extends Packager implements Adapter {
             Box box = item.getBox();
             containerProducts.add(box);
             for(int i = 1; i < item.getCount(); i++) {
-                containerProducts.add(box.clone());
+                containerProducts.add(box.clone()); //to repeat Boxes in BoxItems
             }
         }
+        System.out.println("containerProd size: " + containerProducts.size());
 
         Container holder = new Container(dimension);
 
@@ -80,9 +83,11 @@ public class LargestAreaFitFirstPackager extends Packager implements Adapter {
             // use a special case for boxes with full height
             Box currentBox = null;
             int currentIndex = -1;
+            System.out.println("gies in here first");
 
             boolean fullHeight = false;
             for (int i = 0; i < containerProducts.size(); i++) {
+                System.out.println("goes in multiple");
                 Box box = containerProducts.get(i);
 
                 boolean fits;
@@ -92,6 +97,7 @@ public class LargestAreaFitFirstPackager extends Packager implements Adapter {
                     fits = box.fitRotate2D(freeSpace);
                 }
                 if(fits) {
+                    System.out.println("which box fits: " + box.getName());
                     if(currentBox == null) {
                         currentBox = box;
                         currentIndex = i;
@@ -106,7 +112,7 @@ public class LargestAreaFitFirstPackager extends Packager implements Adapter {
                                 }
                             }
                         } else {
-                            if(box.getHeight() == freeSpace.getHeight()) {
+                            if(box.getHeight() == freeSpace.getHeight()) { //check if full height
                                 fullHeight = true;
 
                                 currentBox = box;
@@ -137,9 +143,11 @@ public class LargestAreaFitFirstPackager extends Packager implements Adapter {
                     return null;
                 }
             }
+            System.out.println("current box is? " + currentBox.getName());
 
             // current box should have the optimal orientation already
             // create a space which holds the full level
+            // height is truncated coz you only have that much space to work with
             Space levelSpace = new Space(
                     dimension.getWidth(),
                     dimension.getDepth(),
@@ -148,13 +156,25 @@ public class LargestAreaFitFirstPackager extends Packager implements Adapter {
                     0,
                     holder.getStackHeight()
             );
+            System.out.println("container count: " + containerProducts.size());
+            holder.addLevel(); //adds a Level element to the current container
+            containerProducts.get(currentIndex).toRemove=true;
+            containerProducts.remove(currentIndex); //removing i-th object coz we added it in levelSpace
 
-            holder.addLevel();
-            containerProducts.remove(currentIndex);
+            System.out.println("container count2: " + containerProducts.size() + " -- " + currentBox.getName());
 
             fit2D(containerProducts, holder, currentBox, levelSpace, deadline);
 
             freeSpace = holder.getFreeSpace();
+
+            Predicate<Box> box1 = e -> e.carryForward;
+            for(Box box : containerProducts) {
+
+                System.out.println("remaining box attribute: " + box.carryForward + " -- " + box.getName());
+            }
+            if(containerProducts.stream().allMatch(box1)) {
+                return holder;
+            }
         }
 
         return holder;
@@ -178,22 +198,26 @@ public class LargestAreaFitFirstPackager extends Packager implements Adapter {
     }
 
     protected void fit2D(List<Box> containerProducts, Container holder, Box usedSpace, Space freeSpace, long deadline) {
-
         if(rotate3D) {
             // minimize footprint
             usedSpace.fitRotate3DSmallestFootprint(freeSpace);
         }
+        System.out.println("free space: " + freeSpace.width + " " + freeSpace.depth + " " + freeSpace.height);
 
         // add used space box now, but possibly rotate later - this depends on the actual remaining free space selected further down
         // there is up to possible 4 free spaces, 2 in which the used space box is rotated
-        holder.add(new Placement(freeSpace, usedSpace));
+        holder.add(new Placement(freeSpace, usedSpace)); // adds the box to the previously added Level object. Box is now PLACED
+        System.out.println(holder.getLevels().get(0).toString());
 
-        if(containerProducts.isEmpty()) {
+        if(containerProducts.isEmpty()) { //possible to add checking for remaining space
             // no additional boxes
             // just make sure the used space fits in the free space
             usedSpace.fitRotate2D(freeSpace);
 
             return;
+        }
+        for(Box box : containerProducts) {
+            System.out.println("boxAASSSS: " + box.getName() + " -- " + holder.getName() + " -- " + usedSpace.getName());
         }
 
         if(System.currentTimeMillis() > deadline) {
@@ -204,7 +228,7 @@ public class LargestAreaFitFirstPackager extends Packager implements Adapter {
 
         Placement nextPlacement = bestVolumePlacement(containerProducts, spaces);
         if(nextPlacement == null) {
-            // no additional boxes
+            // no additional boxes OR the specified box/boxes can't fit in the remaining space
             // just make sure the used space fits in the free space
             usedSpace.fitRotate2D(freeSpace);
 
@@ -435,6 +459,9 @@ public class LargestAreaFitFirstPackager extends Packager implements Adapter {
         }
         if(bestBox != null) {
             return new Placement(bestSpace, bestBox);
+        }
+        for(Box box : containerProducts) {
+            box.carryForward=true;
         }
         return null;
     }

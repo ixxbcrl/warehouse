@@ -5,9 +5,9 @@ public class Space extends Dimension {
     protected Space parent;
     protected Space remainder;
 
-    protected int x; // width
-    protected int y; // depth
-    protected int z; // height
+    public int x; // width
+    public int y; // depth
+    public int z; // height
 
     public Space() {
         super();
