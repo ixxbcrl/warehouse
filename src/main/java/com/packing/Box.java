@@ -14,6 +14,10 @@ public class Box extends Dimension {
         super(name, w, d, h);
     }
 
+    public Box(String name, int type, int w, int d, int h) {
+      super(name, type, w, d, h);
+    }
+
     /**
      *
      * Rotate box, i.e. in 3D
@@ -33,7 +37,7 @@ public class Box extends Dimension {
 
     @Override
     public String toString() {
-        return "Box [name=" + name + ", width=" + width + ", depth=" + depth + ", height=" + height + ", volume="
+        return "Box [name=" + name+ getType() + ", width=" + width + ", depth=" + depth + ", height=" + height + ", volume="
                 + volume + "]";
     }
 
@@ -155,6 +159,8 @@ public class Box extends Dimension {
 
     public boolean fitRotate3DSmallestFootprint(int w, int d, int h) {
         int a = Integer.MAX_VALUE;
+      System.out.println("insideeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee: " + w + " " + d + " " + h);
+      System.out.println("insideeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee2: " + width + " " + depth + " " + height);
         if(heightUp(w, d, h)) {
             a = width * depth;
         }

@@ -68,6 +68,8 @@ public class LargestAreaFitFirstPackager extends Packager implements Adapter {
 
         Container holder = new Container(dimension);
 
+      System.out.println("HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE: "+ holder.getType());
+
         Dimension freeSpace = dimension;
 
         while(!containerProducts.isEmpty()) {
@@ -139,11 +141,22 @@ public class LargestAreaFitFirstPackager extends Packager implements Adapter {
                 } else {
                     // no fit in the current container within the remaining space
                     // try the next container
-                    System.out.println("it comes here");
-                    return null;
+                    System.out.println("it comes here" + box.getName());
+                    box.carryForward=true;
+//                    return null;
                 }
             }
-            System.out.println("current box is? " + currentBox.getName());
+
+          Predicate<Box> box2 = e -> e.carryForward;
+          for(Box box : containerProducts) {
+
+            System.out.println("remaining box attribute: " + box.carryForward + " -- " + box.getName());
+          }
+          if(containerProducts.stream().allMatch(box2)) {
+            return holder;
+          }
+
+//            System.out.println("current box is? " + currentBox.getName());
 
             // current box should have the optimal orientation already
             // create a space which holds the full level
@@ -159,22 +172,25 @@ public class LargestAreaFitFirstPackager extends Packager implements Adapter {
             System.out.println("container count: " + containerProducts.size());
             holder.addLevel(); //adds a Level element to the current container
             containerProducts.get(currentIndex).toRemove=true;
+          System.out.println("container listssss: " + containerProducts.get(currentIndex));
             containerProducts.remove(currentIndex); //removing i-th object coz we added it in levelSpace
 
             System.out.println("container count2: " + containerProducts.size() + " -- " + currentBox.getName());
+
+
 
             fit2D(containerProducts, holder, currentBox, levelSpace, deadline);
 
             freeSpace = holder.getFreeSpace();
 
-            Predicate<Box> box1 = e -> e.carryForward;
-            for(Box box : containerProducts) {
-
-                System.out.println("remaining box attribute: " + box.carryForward + " -- " + box.getName());
-            }
-            if(containerProducts.stream().allMatch(box1)) {
-                return holder;
-            }
+//            Predicate<Box> box1 = e -> e.carryForward;
+//            for(Box box : containerProducts) {
+//
+//                System.out.println("remaining box attribute: " + box.carryForward + " -- " + box.getName());
+//            }
+//            if(containerProducts.stream().allMatch(box1)) {
+//                return holder;
+//            }
         }
 
         return holder;
@@ -199,19 +215,28 @@ public class LargestAreaFitFirstPackager extends Packager implements Adapter {
 
     protected void fit2D(List<Box> containerProducts, Container holder, Box usedSpace, Space freeSpace, long deadline) {
         if(rotate3D) {
-            // minimize footprint
+          System.out.println("ROOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+
+          // minimize footprint
             usedSpace.fitRotate3DSmallestFootprint(freeSpace);
         }
-        System.out.println("free space: " + freeSpace.width + " " + freeSpace.depth + " " + freeSpace.height);
+      System.out.println("CURRENT BOX MEASUREMENTSSSS: " + usedSpace.toString());
+        System.out.println("free space: " + freeSpace.toString());
 
         // add used space box now, but possibly rotate later - this depends on the actual remaining free space selected further down
         // there is up to possible 4 free spaces, 2 in which the used space box is rotated
         holder.add(new Placement(freeSpace, usedSpace)); // adds the box to the previously added Level object. Box is now PLACED
-        System.out.println(holder.getLevels().get(0).toString());
+      for(Level levels : holder.getLevels()) {
+        System.out.println(" HOLDERRR: " + levels.toString());
+      }
+
+
+//      containerProducts.get(currentIndex).toRemove=true;
 
         if(containerProducts.isEmpty()) { //possible to add checking for remaining space
             // no additional boxes
             // just make sure the used space fits in the free space
+          System.out.println("list is empty");
             usedSpace.fitRotate2D(freeSpace);
 
             return;
@@ -228,6 +253,7 @@ public class LargestAreaFitFirstPackager extends Packager implements Adapter {
 
         Placement nextPlacement = bestVolumePlacement(containerProducts, spaces);
         if(nextPlacement == null) {
+          System.out.println("ohno");
             // no additional boxes OR the specified box/boxes can't fit in the remaining space
             // just make sure the used space fits in the free space
             usedSpace.fitRotate2D(freeSpace);
@@ -460,9 +486,9 @@ public class LargestAreaFitFirstPackager extends Packager implements Adapter {
         if(bestBox != null) {
             return new Placement(bestSpace, bestBox);
         }
-        for(Box box : containerProducts) {
-            box.carryForward=true;
-        }
+//        for(Box box : containerProducts) {
+//            box.carryForward=true;
+//        }
         return null;
     }
 

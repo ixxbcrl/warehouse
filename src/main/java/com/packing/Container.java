@@ -8,7 +8,7 @@ public class Container extends Box {
     private ArrayList<Level> levels = new ArrayList<Level>();
 
     public Container(Dimension dimension) {
-        super(dimension.getName(), dimension.getWidth(), dimension.getDepth(), dimension.getHeight());
+        super(dimension.getName(), dimension.getType(), dimension.getWidth(), dimension.getDepth(), dimension.getHeight());
     }
 
     public Container(int w, int d, int h) {

@@ -1,5 +1,8 @@
 package com.packing;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 /**
  * Placement as in box in a space.
  *
@@ -35,8 +38,19 @@ public class Placement {
 
     @Override
     public String toString() {
-        return "Placement [" + space.getX() + "x" + space.getY() + "x" + space.getZ() + ", width=" + box.getWidth() + ", depth=" + box.getDepth()+ ", height="
+        return "Placement for " + box.getName() + "[" + space.getX() + "x" + space.getY() + "x" + space.getZ() + ", width=" + box.getWidth() + ", depth=" + box.getDepth()+ ", height="
                 + box.getHeight()+ "]";
+    }
+
+    public HashMap<String, ArrayList<String>> getBoxPlacementInfo() {
+      HashMap<String, ArrayList<String>> boxPlacements = new HashMap<>();
+      ArrayList<String> boxInfo = new ArrayList<>();
+      boxInfo.add(space.getX() + "," + space.getY() + "," + space.getZ());
+      boxInfo.add(box.fittedTruck);
+      boxInfo.add(box.getWidth() + "," + box.getDepth() + "," + box.getHeight());
+      boxPlacements.put(box.getName(), boxInfo);
+
+      return boxPlacements;
     }
 
     public int getCenterX() {

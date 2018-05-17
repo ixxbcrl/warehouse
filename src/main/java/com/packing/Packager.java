@@ -135,6 +135,9 @@ public abstract class Packager {
 
         if(!binarySearch || dimensions.size() <= 2 || deadline == Long.MAX_VALUE) {
             for (int i = 0; i < dimensions.size(); i++) {
+              for(BoxItem boxItem : boxes) {
+                boxItem.getBox().carryForward=false;
+              }
 
                 if(System.currentTimeMillis() > deadline) {
                     break;
@@ -142,19 +145,30 @@ public abstract class Packager {
 
                 Container result = pack.pack(boxes, dimensions.get(i), deadline);
                 for(int j=0; j<boxes.size(); ++j) {
-                    System.out.println("ahehe: " + boxes.get(j).getBox().getName() + " -- " + boxes.get(j).getBox().carryForward + " ++ " + boxes.get(j).getBox().toRemove);
-                    if(boxes.get(j).getBox().toRemove) {
+                    System.out.println("ahehe: " + boxes.get(j).getBox().getName() + " -- " + boxes.get(j).getBox().carryForward + " ++ " + boxes.get(j).getBox().toRemove + " ** " + boxes.get(j).getBox().canFit);
+                    if(boxes.get(j).getBox().toRemove || !(boxes.get(j).getBox().carryForward && boxes.get(j).getBox().canFit)) {
                         boxes.remove(j);
+                        --j;
                     }
                 }
+
                 for(BoxItem boxItem : boxes) {
                     System.out.println("AFTERRRRRRRRR: " + boxItem.getBox().getName());
+                    if(!(boxItem.getBox().carryForward && boxItem.getBox().canFit)) {
+
+                    }
                 }
 
                 System.out.println("boxes length: " + boxes.size());
                 if(result != null) {
                     System.out.println("retunr?");
                     resultList.add(result);
+
+                    if(boxes.size() != 0) {
+                      Dimension extraContainer = new Dimension("Fed Ex", i+2, 300, 300, 300);
+                      dimensions.add(extraContainer);
+                      System.out.println("TRYYYYYYYYYYYYYY: " + extraContainer.getType());
+                    }
 
                     if(i == dimensions.size()-1) {
                         return resultList;

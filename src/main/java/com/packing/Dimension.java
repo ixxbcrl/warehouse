@@ -1,5 +1,7 @@
 package com.packing;
 
+import java.util.ArrayList;
+
 public class Dimension {
 
     public static final Dimension EMPTY = new Dimension(0, 0, 0);
@@ -29,8 +31,11 @@ public class Dimension {
     public boolean canFit=true;
     public boolean carryForward=false;
     public boolean toRemove=false;
+    public String fittedTruck;
+    public int numberOfPackages=0;
 
     protected final String name;
+    private int type;
 
     public Dimension(String name) {
         this.name = name;
@@ -50,6 +55,16 @@ public class Dimension {
         this.volume = ((long)depth) * ((long)width) * ((long)height);
     }
 
+    public Dimension(String name, int type, int w, int d, int h) {
+      this.name = name;
+      this.type = type;
+      this.depth = d;
+      this.width = w;
+      this.height = h;
+
+      this.volume = ((long)depth) * ((long)width) * ((long)height);
+    }
+
     public Dimension(int w, int d, int h) {
         this(null, w, d, h);
     }
@@ -65,6 +80,8 @@ public class Dimension {
     public int getDepth() {
         return depth;
     }
+
+    public int getType() { return type; }
 
     /**
      *
@@ -196,7 +213,21 @@ public class Dimension {
 
     @Override
     public String toString() {
-        return "Dimension [width=" + width + ", depth=" + depth + ", height=" + height + ", volume=" + volume + "]";
+        return "Dimension for " + name + type + "[width=" + width + ", depth=" + depth + ", height=" + height + ", volume=" + volume + "]";
+    }
+
+    public ArrayList<String> getDbUpdateData() {
+      ArrayList<String> truckSummary = new ArrayList<>();
+
+      truckSummary.add(getName());
+      truckSummary.add(String.valueOf(getType()));
+      truckSummary.add(String.valueOf(width));
+      truckSummary.add(String.valueOf(depth));
+      truckSummary.add(String.valueOf(height));
+      truckSummary.add(String.valueOf(numberOfPackages));
+
+
+      return truckSummary;
     }
 
     public String encode() {
